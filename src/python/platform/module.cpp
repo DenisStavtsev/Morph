@@ -21,6 +21,9 @@ void bind_node_collection()
             boost::python::return_value_policy<copy_const_reference>());
 }
 
+namespace
+{
+
 struct MetadataPropertyConverter
 {
     static PyObject* convert(const MetadataProperty& property)
@@ -42,6 +45,8 @@ struct MetadataPropertyConverter
         return PyFloat_FromDouble(value);
     }
 };
+
+} // namespace
 
 void bind_metadata()
 {
@@ -69,6 +74,9 @@ namespace
 class NodeStorageAdaptor : private NodeStorage
 {
   public:
+    using NodeStorage::State;
+    using NodeStorage::state;  
+    
     NodeStorageAdaptor()
         : NodeStorage(nullptr)
     {}
@@ -102,14 +110,39 @@ class NodeStorageAdaptor : private NodeStorage
 
         // TODO: error: unsupported action type.
     }
+
+    void subscribe(const object& on_update)
+    {
+        NodeStorage::subscribe(
+            [on_update]()
+            {
+                on_update();
+            });
+    }
 };
 
 } // namespace
 
 void bind_node_storage()
 {
+    class_<NodeStorage::State>("NodeStorageState")
+        .add_property(
+            "nodes",
+            +[](const NodeStorage::State& state)
+            {
+                return state.m_nodes;
+            })
+        .add_property(
+            "metadata",
+            +[](const NodeStorage::State& state)
+            {
+                return state.m_metadata;
+            });
+
     class_<NodeStorageAdaptor>("NodeStorage")
-        .def("dispatch", &NodeStorageAdaptor::dispatch);
+        .def("dispatch", &NodeStorageAdaptor::dispatch)
+        .def("state", &NodeStorageAdaptor::state)
+        .def("subscribe", &NodeStorageAdaptor::subscribe);
 
 }
 
@@ -119,4 +152,5 @@ BOOST_PYTHON_MODULE(_platform)
     bind_node_collection();
     bind_metadata();
     bind_metadata_collection();
+    bind_node_storage();
 }
