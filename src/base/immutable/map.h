@@ -90,6 +90,12 @@ class Map
         return Iterator();
     }
 
+    bool operator==(const Map& other) const
+    {
+        // TODO.
+        return false;
+    }
+
     ~Map()
     {
         if (m_root && m_root->dec())

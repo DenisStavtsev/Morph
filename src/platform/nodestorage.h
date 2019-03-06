@@ -1,6 +1,7 @@
 #pragma once
 
 #include "nodestorageactions.h"
+#include "nodestoragetypes.h"
 
 #include "base/immutable/map.h"
 
@@ -14,19 +15,23 @@ namespace platform { class NodeFactoryRegistry; }
 namespace platform
 {
 
-using NodeCollection = immutable::Map<NodeId, Node*>;
-
 class NodeStorage
 {
   public:
+    struct State
+    {
+        NodeCollection      m_nodes;
+        MetadataCollection  m_metadata;
+    };
+
     using OnUpdateFn = std::function<void()>;
 
     NodeStorage(NodeFactoryRegistry* registry);
     ~NodeStorage();
 
-    void           dispatch(NodeStorageAction action);
-    NodeCollection state() const;
-    void           subscribe(OnUpdateFn on_next);
+    void    dispatch(NodeStorageAction action);
+    State   state() const;
+    void    subscribe(OnUpdateFn on_update);
 
   private:
     struct Impl;

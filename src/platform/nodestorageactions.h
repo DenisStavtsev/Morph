@@ -1,6 +1,7 @@
 #pragma once
 
 #include "node.h"
+#include "nodestoragetypes.h"
 
 #include <cstdint>
 #include <string>
@@ -11,17 +12,25 @@ namespace platform
 
 struct CreateNode
 {
-    NodeId      id;
-    std::string model;
+    NodeId          id;
+    std::string     model;
+    Metadata        metadata;
 };
 
 struct RemoveNode
 {
-    NodeId id;
+    NodeId          id;
+};
+
+struct UpdateMetadata
+{
+    NodeId          id;
+    Metadata        metadata;
 };
 
 using NodeStorageAction = std::variant<
     CreateNode,
-    RemoveNode>;
+    RemoveNode,
+    UpdateMetadata>;
 
 } // namespace platform

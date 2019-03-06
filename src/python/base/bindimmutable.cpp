@@ -27,5 +27,5 @@ boost::python::class_<Map>("Map")
     .def("set", &Map::set)
     .def("__getitem__", &Map::get,
          boost::python::return_value_policy<copy_const_reference>())
-    .def("__delitem__", &Map::erase);
+    .def("erase", &Map::erase);
 }
